@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Test SignalR</title>
+</head>
+<body>
+<div style="background-color: blue; width: 100px; height: 100px" id="R1"></div>
+<script src="scripts/jquery/dist/jquery.min.js"></script>
+<script src="scripts/signalr/dist/browser/signalr.js"></script>
+<script src="scripts/msgpack/dist/msgpack5.js"></script>
+<script src="scripts/signalr/dist/browser/signalr-protocol-msgpack.js"></script>
+<script>
+    $(document).ready(function () {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/ws")
+            .withHubProtocol(new signalR.protocols.msgpack.MessagePackHubProtocol())
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+        connection.start().catch(err => console.error(err.toString()));
+
+    
+        $('#R1').click(function (event) {
+            const evt = {
+                "Event": "click",
+                "Area": "R1",
+                "Application": "demo",
+                "TimeStamp": new Date()
+            };
+            connection.invoke("SendMessage", evt).catch(err => console.error(err.toString()));
+            event.preventDefault();
+        });
+    });
+</script></body>
+</html>
