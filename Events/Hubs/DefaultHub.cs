@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using MassTransit;
@@ -8,7 +8,7 @@ using Utf8Json;
 
 namespace Events.Hubs
 {
-    public class DefaultHub:Hub
+    public class DefaultHub : Hub
     {
         private readonly IEventStoreConnection _connection;
 
@@ -19,20 +19,26 @@ namespace Events.Hubs
 
         public async Task SendEvent(Event evt)
         {
-           // evt.ServerTimeStamp = DateTime.Now;
+            var context = Context.GetHttpContext();
+            var userAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
+            var remoteIp = context.Connection.RemoteIpAddress.MapToIPv4().ToString();
+
             await _connection.AppendToStreamAsync("game-stream", ExpectedVersion.Any,
-                new EventData(NewId.NextGuid(), "tic-tac-toe-move", true,
+                new EventData(NewId.NextGuid(), "move", true,
                     JsonSerializer.Serialize(evt),
-                    Encoding.UTF8.GetBytes("signalr-generated")));
+                    JsonSerializer.Serialize(new { UserAgent = userAgent, RemoteIp = remoteIp })));
         }
 
         public async Task SendMessage(Message msg)
         {
-            msg.ServerTimeStamp = DateTime.Now;
+            var context = Context.GetHttpContext();
+            var userAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
+            var remoteIp = context.Connection.RemoteIpAddress.MapToIPv4().ToString();
+
             await _connection.AppendToStreamAsync("web-stream", ExpectedVersion.Any,
                 new EventData(NewId.NextGuid(), msg.Event, true,
                     JsonSerializer.Serialize(msg),
-                    Encoding.UTF8.GetBytes("signalr-generated")));
+                    JsonSerializer.Serialize(new { UserAgent = userAgent, RemoteIp = remoteIp })));
         }
 
         public override async Task OnConnectedAsync()

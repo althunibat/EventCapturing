@@ -8,7 +8,6 @@ namespace Events.Hubs
         public string Application { get; set; }
         public string Area { get; set; }
         public DateTime TimeStamp { get; set; }
-        public DateTime ServerTimeStamp { get; set; }
     }
 
     public class Event
