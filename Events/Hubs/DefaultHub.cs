@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
+using Utf8Json;
 
 namespace Events.Hubs
 {
@@ -17,11 +17,21 @@ namespace Events.Hubs
             _connection = connection;
         }
 
-        public async Task SendMessage(Message message)
+        public async Task SendEvent(Event evt)
         {
+           // evt.ServerTimeStamp = DateTime.Now;
+            await _connection.AppendToStreamAsync("game-stream", ExpectedVersion.Any,
+                new EventData(NewId.NextGuid(), "tic-tac-toe-move", true,
+                    JsonSerializer.Serialize(evt),
+                    Encoding.UTF8.GetBytes("signalr-generated")));
+        }
+
+        public async Task SendMessage(Message msg)
+        {
+            msg.ServerTimeStamp = DateTime.Now;
             await _connection.AppendToStreamAsync("web-stream", ExpectedVersion.Any,
-                new EventData(NewId.NextGuid(), "web-event", true,
-                    Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message)),
+                new EventData(NewId.NextGuid(), msg.Event, true,
+                    JsonSerializer.Serialize(msg),
                     Encoding.UTF8.GetBytes("signalr-generated")));
         }
 

@@ -22,7 +22,7 @@ namespace Events
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddSignalR(options => options.SupportedProtocols = new List<string> {"messagepack"})
+                .AddSignalR(options => options.SupportedProtocols = new List<string> { "messagepack" })
                 .AddMessagePackProtocol()
                 .AddRedis(_config["REDIS"]);
             services.AddSingleton<IEventStoreConnection>(c =>

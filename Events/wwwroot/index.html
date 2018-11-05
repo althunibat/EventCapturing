@@ -3,33 +3,140 @@
 <head>
     <meta charset="utf-8" />
     <title>Test SignalR</title>
+    <link href="scripts/tic-tac-toe/tic-tac-toe.css" rel="stylesheet" />
 </head>
 <body>
-<div style="background-color: blue; width: 100px; height: 100px" id="R1"></div>
-<script src="scripts/jquery/dist/jquery.min.js"></script>
-<script src="scripts/signalr/dist/browser/signalr.js"></script>
-<script src="scripts/msgpack/dist/msgpack5.js"></script>
-<script src="scripts/signalr/dist/browser/signalr-protocol-msgpack.js"></script>
-<script>
-    $(document).ready(function () {
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/ws")
-            .withHubProtocol(new signalR.protocols.msgpack.MessagePackHubProtocol())
-            .configureLogging(signalR.LogLevel.Information)
-            .build();
-        connection.start().catch(err => console.error(err.toString()));
+    <!--<div style="background-color: blue; width: 100px; height: 100px; padding: 8px" id="A1"></div>
+    <div style="background-color: red; width: 100px; height: 100px; padding: 8px" id="A2"></div>-->
 
-    
-        $('#R1').click(function (event) {
-            const evt = {
-                "Event": "click",
-                "Area": "R1",
-                "Application": "demo",
-                "TimeStamp": new Date()
-            };
-            connection.invoke("SendMessage", evt).catch(err => console.error(err.toString()));
-            event.preventDefault();
+    <div id="tictactoe"></div>
+    <div align="left">
+        <span id='turn'>Player X</span>
+    </div>
+    <script src="scripts/jquery/dist/jquery.min.js"></script>
+    <script src="scripts/signalr/dist/browser/signalr.js"></script>
+    <script src="scripts/msgpack/dist/msgpack5.js"></script>
+    <script src="scripts/signalr/dist/browser/signalr-protocol-msgpack.js"></script>
+    <script>
+        $(document).ready(function () {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/ws")
+                .withHubProtocol(new signalR.protocols.msgpack.MessagePackHubProtocol())
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+            connection.start().catch(err => console.error(err.toString()));
+
+            var N_SIZE = 3,
+                EMPTY = "&nbsp;",
+                boxes = [],
+                turn = "X",
+                score,
+                moves;
+
+            function init() {
+                const board = document.createElement("table");
+                board.setAttribute("border", 1);
+                board.setAttribute("cellspacing", 0);
+
+                var identifier = 1;
+                for (let i = 0; i < N_SIZE; i++) {
+                    const row = document.createElement("tr");
+                    board.appendChild(row);
+                    for (let j = 0; j < N_SIZE; j++) {
+                        const cell = document.createElement("td");
+                        cell.setAttribute("height", 120);
+                        cell.setAttribute("width", 120);
+                        cell.setAttribute("align", "center");
+                        cell.setAttribute("valign", "center");
+                        cell.classList.add(`col${j}`, `row${i}`);
+                        if (i === j) {
+                            cell.classList.add("diagonal0");
+                        }
+                        if (j === N_SIZE - i - 1) {
+                            cell.classList.add("diagonal1");
+                        }
+                        cell.identifier = identifier;
+                        cell.addEventListener("click", set);
+                        cell.addEventListener("click", handleEvent);
+                        cell.addEventListener("mouseenter", handleEvent);
+                        cell.addEventListener("mouseleave", handleEvent);
+                        row.appendChild(cell);
+                        boxes.push(cell);
+                        identifier += identifier;
+                    }
+                }
+
+                document.getElementById("tictactoe").appendChild(board);
+                startNewGame();
+            }
+            function startNewGame() {
+                score = {
+                    'X': 0,
+                    'O': 0
+                };
+                moves = 0;
+                turn = "X";
+                boxes.forEach(function (square) {
+                    square.innerHTML = EMPTY;
+                });
+            }
+            function win(clicked) {
+                // Get all cell classes
+                const memberOf = clicked.className.split(/\s+/);
+                for (let i = 0; i < memberOf.length; i++) {
+                    const testClass = `.${memberOf[i]}`;
+                    const items = contains(`#tictactoe ${testClass}`, turn);
+                    // winning condition: turn == N_SIZE
+                    if (items.length === N_SIZE) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            function contains(selector, text) {
+                const elements = document.querySelectorAll(selector);
+                return [].filter.call(elements, function (element) {
+                    return RegExp(text).test(element.textContent);
+                });
+            }
+            function set() {
+                const evt = {};
+                if (this.innerHTML !== EMPTY) {
+                    return;
+                }
+                this.innerHTML = turn;
+                moves += 1;
+                score[turn] += this.identifier;
+                evt.Index = this.identifier;
+                evt.Turn = turn;
+                evt.Winner = false;
+
+                if (win(this)) {
+                    evt.Winner = true;
+                    console.log(`Winner: Player ${turn}`);
+                    startNewGame();
+                } else if (moves === N_SIZE * N_SIZE) {
+                    console.log("Draw");
+                    startNewGame();
+                } else {
+                    turn = turn === "X" ? "O" : "X";
+                    document.getElementById("turn").textContent = `Player ${turn}`;
+                }
+                connection.invoke("SendEvent", evt).catch(err => console.error(err.toString()));
+            }
+            init();
+            function handleEvent(event) {
+                event.preventDefault();
+                const timestamp = new Date();
+                const evt = {
+                    "Event": event.type,
+                    "Area": `cell-${Math.log2(event.target.identifier) + 1}`,
+                    "Application": "demo",
+                    "TimeStamp": timestamp
+                };
+                connection.invoke("SendMessage", evt).catch(err => console.error(err.toString()));
+            }
         });
-    });
-</script></body>
+    </script>
+</body>
 </html>

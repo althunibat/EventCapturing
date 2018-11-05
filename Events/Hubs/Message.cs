@@ -8,9 +8,13 @@ namespace Events.Hubs
         public string Application { get; set; }
         public string Area { get; set; }
         public DateTime TimeStamp { get; set; }
-        public override string ToString()
-        {
-            return $"{TimeStamp}:{Application}.{Area}-{Event}";
-        }
+        public DateTime ServerTimeStamp { get; set; }
+    }
+
+    public class Event
+    {
+        public int Index { get; set; }
+        public string Turn { get; set; }
+        public bool Winner { get; set; }
     }
 }
