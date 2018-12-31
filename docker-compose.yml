@@ -1,13 +1,13 @@
 version: '3.4'
 
 services:
-  events:
-    image: events
-    ports:
-    - "8080:80"
+  eventproccessing:
+    image: eventproccessing
     build:
       context: .
-      dockerfile: Events/Dockerfile
+      dockerfile: EventProccessing/Dockerfile
+    ports:
+    - "8080:80"
     environment:
     - REDIS=redis
     - ENVENTSTORE_URI=tcp://admin:changeit@eventstore:1113

@@ -3,10 +3,10 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>2ea5c1c3-4c75-48a4-a635-860d71a50f00</ProjectGuid>
+    <ProjectGuid>b8f6fc01-34d0-412c-ac1d-b731da151ded</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>events</DockerServiceName>
+    <DockerServiceUrl>{Scheme}://localhost:8080/index.html</DockerServiceUrl>
+    <DockerServiceName>eventproccessing</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

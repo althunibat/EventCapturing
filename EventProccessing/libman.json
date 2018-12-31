@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "library": "@aspnet/signalr@1.1.0",
+      "destination": "wwwroot/scripts/signalr",
+      "files": [
+        "dist/browser/signalr.js"
+      ]
+    },
+    {
+      "library": "@aspnet/signalr-protocol-msgpack@1.1.0",
+      "destination": "wwwroot/scripts/signalr",
+      "files": [
+        "dist/browser/signalr-protocol-msgpack.js"
+      ]
+    },
+    {
+      "library": "msgpack5@4.2.1",
+      "destination": "wwwroot/scripts/msgpack",
+      "files": [
+        "dist/msgpack5.js"
+      ]
+    },
+    {
+      "library": "jquery@3.3.1",
+      "destination": "wwwroot/scripts/jquery",
+      "files": [
+        "dist/jquery.min.js"
+      ]
+    }
+  ]
+}
